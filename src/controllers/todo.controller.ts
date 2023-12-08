@@ -12,7 +12,8 @@ export const getAllTodos: RequestHandler = async (req, res, next) => {
     const todos = await todoModel
       .find({ userId, title: { $regex: search } })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 });
     const total = await todoModel
       .find({ userId, title: { $regex: search } })
       .countDocuments();
@@ -34,6 +35,16 @@ export const addTodo: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const updateTodo: RequestHandler = async (req, res, next) => {
+  try {
+    const todo = await todoModel.findByIdAndUpdate(req.params.id, {
+      ...req.body,
+    });
+    res.status(200).json({ success: true, message: "Todo updated" });
+  } catch (error) {
+    next(error);
+  }
+};
 export const deleteTodo: RequestHandler = async (req, res, next) => {
   try {
     const todo = await todoModel.findByIdAndDelete(req.params.id);
